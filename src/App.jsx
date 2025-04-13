@@ -8,16 +8,24 @@ import {
   theme,
   Typography,
 } from 'antd';
-import { EyeTwoTone, EyeInvisibleTwoTone } from '@ant-design/icons';
+import {
+  EyeTwoTone,
+  EyeInvisibleTwoTone,
+  ClearOutlined,
+} from '@ant-design/icons';
 
 function App() {
-  const [number, setNumber] = useState('');
-  const [inputVal, setInputVal] = useState();
+  const [number, setNumber] = useState(
+    () => localStorage.getItem('number') || ''
+  );
+  const [inputVal, setInputVal] = useState('');
   const [validationResult, setValidationResult] = useState([]);
   const [mask, setMask] = useState('*');
 
   const handleAddMyNumber = () => {
-    setNumber(inputVal);
+    const n = `${inputVal}`;
+    setNumber(n);
+    localStorage.setItem('number', n);
     setInputVal('');
   };
 
@@ -41,6 +49,12 @@ function App() {
     setValidationResult((prev) => [`${val} ${total} - ${right}`, ...prev]);
   };
 
+  const handleClear = () => {
+    setNumber('');
+    localStorage.removeItem('number');
+    setValidationResult([]);
+  };
+
   return (
     <ConfigProvider
       theme={{
@@ -51,6 +65,16 @@ function App() {
         },
       }}
     >
+      <div
+        style={{ position: 'absolute', bottom: 0, right: 0, padding: '1rem' }}
+      >
+        <Button
+          shape="circle"
+          type="text"
+          icon={<ClearOutlined />}
+          onClick={handleClear}
+        />
+      </div>
       <Flex vertical align="center" gap="middle">
         <Typography.Title level={1}>Number Guessr</Typography.Title>
         {!number && (
