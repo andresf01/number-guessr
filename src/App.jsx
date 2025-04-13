@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, Fragment } from 'react';
 import {
   Flex,
   Card,
@@ -13,11 +13,13 @@ import {
   EyeInvisibleTwoTone,
   ClearOutlined,
 } from '@ant-design/icons';
+import { Modal } from 'antd';
 
 function App() {
   const [number, setNumber] = useState(
     () => localStorage.getItem('number') || ''
   );
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [inputVal, setInputVal] = useState('');
   const [validationResult, setValidationResult] = useState([]);
   const [mask, setMask] = useState('*');
@@ -53,6 +55,7 @@ function App() {
     setNumber('');
     localStorage.removeItem('number');
     setValidationResult([]);
+    setIsModalOpen(false);
   };
 
   return (
@@ -65,16 +68,26 @@ function App() {
         },
       }}
     >
-      <div
-        style={{ position: 'absolute', bottom: 0, right: 0, padding: '1rem' }}
+      {number && (
+        <div
+          style={{ position: 'absolute', bottom: 0, right: 0, padding: '1rem' }}
+        >
+          <Button
+            shape="circle"
+            type="text"
+            icon={<ClearOutlined />}
+            onClick={() => setIsModalOpen(true)}
+          />
+        </div>
+      )}
+      <Modal
+        title="Basic Modal"
+        open={isModalOpen}
+        onOk={handleClear}
+        onCancel={() => setIsModalOpen(false)}
       >
-        <Button
-          shape="circle"
-          type="text"
-          icon={<ClearOutlined />}
-          onClick={handleClear}
-        />
-      </div>
+        <p>Do you want to clear the number?</p>
+      </Modal>
       <Flex vertical align="center" gap="middle">
         <Typography.Title level={1}>Number Guessr</Typography.Title>
         {!number && (
@@ -97,12 +110,13 @@ function App() {
           </Card>
         )}
         {number && (
-          <Flex gap="small">
+          <Flex gap="small" style={{ position: 'relative' }}>
             <Input.OTP value={number} length="4" mask={mask} disabled />
             {mask ? (
               <Button
                 shape="circle"
                 type="text"
+                style={{ position: 'absolute', right: '-40px' }}
                 icon={<EyeTwoTone />}
                 onClick={() => setMask(undefined)}
               />
@@ -110,6 +124,7 @@ function App() {
               <Button
                 shape="circle"
                 type="text"
+                style={{ position: 'absolute', right: '-40px' }}
                 icon={<EyeInvisibleTwoTone />}
                 onClick={() => setMask('*')}
               />
@@ -136,13 +151,25 @@ function App() {
             </Flex>
           </Card>
         )}
-        <Flex vertical gap="small">
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '14px 1fr',
+            columnGap: '1rem',
+            rowGap: '.5rem',
+          }}
+        >
           {validationResult.map((e, i) => (
-            <Typography.Text key={e.replaceAll(' ', '_').concat(i)}>
-              {e}
-            </Typography.Text>
+            <Fragment key={i}>
+              <Typography.Text disabled>
+                {validationResult.length - i}.
+              </Typography.Text>
+              <Typography.Text style={{ letterSpacing: '1px' }}>
+                {e}
+              </Typography.Text>
+            </Fragment>
           ))}
-        </Flex>
+        </div>
       </Flex>
     </ConfigProvider>
   );
